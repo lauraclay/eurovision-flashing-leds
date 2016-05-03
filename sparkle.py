@@ -20,31 +20,35 @@ SPI_PORT   = 0
 SPI_DEVICE = 0
 pixels = Adafruit_WS2801.WS2801Pixels(PIXEL_COUNT, spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 
+# Sparkle must always be less than factor. Factor - sparkle = bling
 FACTOR = 0.03
 SPARKLE = 0.02
 #FACTOR = 1.0
 #SPARKLE = 1.0
-NUM_STARS = 10
-CYCLE_DELAY = 0.1
-CYCLE_COUNT = 30
+NUM_STARS = 10 # blinkenstars to generate
+CYCLE_DELAY = 0.1 # in seconds
+CYCLE_COUNT = 30 # 30 * CYCLE_DELAY
 STAR_BRIGHTNESS = 100
 
+# tuples for flags
 FRANCE = ((0,0,255),(100,100,100),(200,0,0))
 ITALY = ((255,0,0),(100,100,100),(0,255,0))
 GERMANY = ((0,0,0),(255,0,0),(255,255,0))
 
+""" i = starting pixel, n = no of pixels to set, t = rgb tuple
+"""
 def pixels_from_tuple(i, n, t, factor, sparkle):
  for j in range(i,i+n):
   if j >= PIXEL_COUNT:
-   return j
-  (r,g,b) = t
+   return j # stop from running off the end of the LEDs
+  (r,g,b) = t # unpack tuple
   f = random.uniform(factor, factor-sparkle)
   pixels.set_pixel_rgb(j,int(r*f),int(b*f),int(g*f))
- return i+n
+ return i+n # return next pixel to set
 
-def tricolor(x,tt): 
- (first,second,third) = tt
- x = pixels_from_tuple(x,10,first,FACTOR,SPARKLE)
+def tricolor(x,tt): # x = starting pixel
+ (first,second,third) = tt # metatuple, like ITALY
+ x = pixels_from_tuple(x,10,first,FACTOR,SPARKLE) 
  x = pixels_from_tuple(x,10,second,FACTOR,SPARKLE)
  x = pixels_from_tuple(x,10,third,FACTOR,SPARKLE)
  return x
@@ -53,17 +57,17 @@ def tricolor(x,tt):
 def do_tricolor_once(tt):
  x = 0
  while (x<PIXEL_COUNT):
-  x = tricolor(x,tt)
+  x = tricolor(x,tt) # fill string with tricolors
  for p in range(0,NUM_STARS):
-  pixels.set_pixel_rgb(random.randint(0,PIXEL_COUNT-1),STAR_BRIGHTNESS,STAR_BRIGHTNESS,STAR_BRIGHTNESS)
+  pixels.set_pixel_rgb(random.randint(0,PIXEL_COUNT-1),STAR_BRIGHTNESS,STAR_BRIGHTNESS,STAR_BRIGHTNESS) # random white sparkles
  pixels.show()
  x = 0
  while (x<PIXEL_COUNT):
   x = tricolor(x,tt)
- pixels.show()
- time.sleep(CYCLE_DELAY)
+ pixels.show() 
+ time.sleep(CYCLE_DELAY) # sleep for specified delay
 
-def do_tricolor_for_a_bit(tt,howlong):
+def do_tricolor_for_a_bit(tt,howlong): # flash the stars
  for i in range(0,howlong):
   do_tricolor_once(tt)
 
